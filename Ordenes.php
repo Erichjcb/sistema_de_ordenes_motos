@@ -1,7 +1,8 @@
 <?php
-// 1. CLASE PADRE (Aquí aplicamos Abstracción y Encapsulamiento)
+// 1. CLASE PADRE 
 class OrdenCompra {
-    // Usamos 'protected' para que las clases hijas puedan usar estas variables (Encapsulamiento)
+    
+// .......
     protected $fecha;
     protected $num_orden;
     protected $producto;
@@ -11,7 +12,7 @@ class OrdenCompra {
     protected $num_cliente;
     protected $destino;
 
-    // El constructor arma el objeto cuando lo creamos
+    // El constructor 
     public function __construct($fecha, $num_orden, $producto, $proveedor, $cantidad, $precio, $num_cliente, $destino) {
         $this->fecha = $fecha;
         $this->num_orden = $num_orden;
@@ -23,7 +24,7 @@ class OrdenCompra {
         $this->destino = $destino;
     }
 
-    // Getters muy básicos para poder leer los datos protegidos
+    // Getters 
     public function getFecha() { return $this->fecha; }
     public function getNumOrden() { return $this->num_orden; }
     public function getProducto() { return $this->producto; }
@@ -33,25 +34,25 @@ class OrdenCompra {
     public function getNumCliente() { return $this->num_cliente; }
     public function getDestino() { return $this->destino; }
 
-    // Este es el método base que cambiará gracias al Polimorfismo
+    // Método
     public function calcularCostoEnvio() {
         return 0; 
     }
 }
 
-// 2. CLASE HIJA: ORDEN LOCAL (Aquí aplicamos Herencia)
+// 2. CLASE HIJA
 class OrdenLocal extends OrdenCompra {
     
-    // Polimorfismo: Una orden local tiene envío estándar o gratis (ej. S/ 10.00)
+    // Polimorfismo
     public function calcularCostoEnvio() {
         return 10.00;
     }
 }
 
-// 3. CLASE HIJA: ORDEN NACIONAL (Aquí aplicamos Herencia)
+// 3. CLASE HIJA
 class OrdenNacional extends OrdenCompra {
     
-    // Polimorfismo: Una orden nacional tiene un envío más caro por la distancia (ej. S/ 50.00)
+    // Polimorfismo
     public function calcularCostoEnvio() {
         return 50.00;
     }

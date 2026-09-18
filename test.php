@@ -1,5 +1,5 @@
     <?php
-// Incluimos nuestros archivos
+// << Archivos
 require_once 'Conexion.php';
 require_once 'Ordenes.php';
 
