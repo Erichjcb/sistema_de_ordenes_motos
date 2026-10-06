@@ -7,13 +7,14 @@ class OrdenDAO extends Conexion {
     // 1. GUARDAR (Create)
     public function registrar($orden, $tipo) {
         $conexion = $this->conectar();
-        $sql = "INSERT INTO ordenes (tipo, fecha, num_orden, producto, proveedor, cantidad, precio, num_cliente, destino, costo_envio) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO ordenes (tipo, fecha, num_orden, producto, proveedor, cantidad, precio, num_cliente, destino, costo_envio, estado_orden, solicitud_cliente) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conexion->prepare($sql);
         return $stmt->execute([
             $tipo, $orden->getFecha(), $orden->getNumOrden(), $orden->getProducto(), 
             $orden->getProveedor(), $orden->getCantidad(), $orden->getPrecio(), 
-            $orden->getNumCliente(), $orden->getDestino(), $orden->calcularCostoEnvio()
+            $orden->getNumCliente(), $orden->getDestino(), $orden->calcularCostoEnvio(),
+            $orden->getEstadoOrden(), $orden->getSolicitudCliente()
         ]);
     }
 
@@ -33,7 +34,7 @@ class OrdenDAO extends Conexion {
         return $stmt->execute([$id]);
     }
 
-    // 4. BUSCAR UNA ORDEN (Para llenar el formulario)
+    // 4. BUSCAR UNA ORDEN POR ID (Para llenar el formulario)
     public function obtenerPorId($id) {
         $conexion = $this->conectar();
         $sql = "SELECT * FROM ordenes WHERE id = ?";
@@ -42,34 +43,47 @@ class OrdenDAO extends Conexion {
         return $stmt->fetch(PDO::FETCH_ASSOC); 
     }
 
-    // 5. ACTUALIZAR (Update)
+    // 5. ACTUALIZAR TODO (Update)
     public function actualizar($id, $orden, $tipo) {
         $conexion = $this->conectar();
-        $sql = "UPDATE ordenes SET tipo=?, fecha=?, num_orden=?, producto=?, proveedor=?, cantidad=?, precio=?, num_cliente=?, destino=?, costo_envio=? WHERE id=?";
+        $sql = "UPDATE ordenes SET tipo=?, fecha=?, num_orden=?, producto=?, proveedor=?, cantidad=?, precio=?, num_cliente=?, destino=?, costo_envio=?, estado_orden=?, solicitud_cliente=? WHERE id=?";
         $stmt = $conexion->prepare($sql);
         return $stmt->execute([
             $tipo, $orden->getFecha(), $orden->getNumOrden(), $orden->getProducto(), 
             $orden->getProveedor(), $orden->getCantidad(), $orden->getPrecio(), 
             $orden->getNumCliente(), $orden->getDestino(), $orden->calcularCostoEnvio(),
+            $orden->getEstadoOrden(), $orden->getSolicitudCliente(),
             $id
         ]);
     }
 
-    // =======================================================
-    // NUEVO: 6. GENERADOR AUTOMÁTICO DE N° DE ORDEN
-    // =======================================================
+    // 6. GENERADOR AUTOMÁTICO DE N° DE ORDEN
     public function obtenerSiguienteNumeroOrden() {
         $conexion = $this->conectar();
-        // Preguntamos cuál es el ID más alto registrado
         $sql = "SELECT MAX(id) as max_id FROM ordenes";
         $stmt = $conexion->query($sql);
         $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        // Si no hay nada, empieza en 0. Le sumamos 1.
         $siguiente = ($resultado['max_id'] ?? 0) + 1;
-        
-        // str_pad le pone ceros a la izquierda (Ej: 001, 002)
         return "ORD-" . str_pad($siguiente, 3, "0", STR_PAD_LEFT);
+    }
+
+    // ================= NUEVO PARA ESTA FASE ================= //
+
+    // 7. BUSCAR POR NUMERO DE ORDEN (Para el Seguimiento del Cliente)
+    public function buscarPorNumOrden($num_orden) {
+        $conexion = $this->conectar();
+        $sql = "SELECT * FROM ordenes WHERE num_orden = ?";
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute([$num_orden]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // 8. ACTUALIZAR ESTADO (Para el menú desplegable del Proveedor)
+    public function actualizarEstado($id, $estado) {
+        $conexion = $this->conectar();
+        $sql = "UPDATE ordenes SET estado_orden = ? WHERE id = ?";
+        $stmt = $conexion->prepare($sql);
+        return $stmt->execute([$estado, $id]);
     }
 }
 ?>
