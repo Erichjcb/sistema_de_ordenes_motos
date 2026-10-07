@@ -33,8 +33,8 @@
         .alerta-error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
 
         /* Estilo para el botón PDF */
-        .btn-imprimir { background-color: #17a2b8 !important; color: white !important; border-radius: 4px !important; border: none !important; font-weight: bold !important; margin-bottom: 15px !important; font-size: 14px !important;}
-        .btn-imprimir:hover { background-color: #138496 !important; }
+        .btn-exportar { background-color: #17a2b8 !important; color: white !important; border-radius: 4px !important; border: none !important; font-weight: bold !important; margin-bottom: 15px !important; font-size: 14px !important;}
+        .btn-exportar:hover { background-color: #138496 !important; }
     </style>
 
     <!-- CSS de DataTables para los botones -->
@@ -149,7 +149,6 @@
         <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #ccc; overflow-x: auto;">
             <h3>Detalles de la Orden Encontrada</h3>
             
-            <!-- AGREGAMOS EL ID A LA TABLA -->
             <table id="tablaSeguimiento">
                 <thead>
                     <tr>
@@ -190,40 +189,28 @@
     <?php endif; ?>
 
     <!-- ============================================================ -->
-    <!-- SCRIPTS PARA GENERAR EL TICKET EN PDF                        -->
+    <!-- LIBRERÍAS DE DATATABLES Y EXPORTACIÓN                        -->
     <!-- ============================================================ -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script> 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script> 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
 
+    <!-- AQUÍ LLAMAMOS A TU NUEVO ARCHIVO CENTRALIZADO -->
+    <script src="assets/js/exportador.js"></script>
+
     <script>
         $(document).ready(function() {
-            // Verificamos que la tabla exista (es decir, que se haya buscado una orden)
-            if ($('#tablaSeguimiento').length) {
-                $('#tablaSeguimiento').DataTable({
-                    dom: 'B', // La "B" significa que SOLO muestre los Botones (sin buscador ni paginación)
-                    paging: false,
-                    searching: false,
-                    info: false,
-                    ordering: false, // Desactiva las flechitas de ordenar porque solo hay 1 fila
-                    buttons: [
-                        {
-                            extend: 'pdfHtml5',
-                            text: '📄 Descargar Ticket PDF',
-                            className: 'btn-imprimir',
-                            title: 'Ticket de Orden: <?php echo isset($ordenBuscada) ? $ordenBuscada["num_orden"] : ""; ?>',
-                            orientation: 'landscape',
-                            exportOptions: {
-                                // MÁGIA: Imprime las columnas de la 0 a la 7, ignorando la 8 (Acciones)
-                                columns: [0, 1, 2, 3, 4, 5, 6, 7] 
-                            }
-                        }
-                    ]
-                });
-            }
+            // Creamos el título dinámico usando PHP para que el PDF se llame como la orden
+            let tituloDinamico = 'Ticket de Orden: <?php echo isset($ordenBuscada) ? $ordenBuscada["num_orden"] : ""; ?>';
+            
+            // Parámetros: ID Tabla, Título, [Columnas a ignorar], Mostrar Buscador
+            // Ignoramos la columna 8 (Acciones)
+            // Enviamos 'false' al final para APAGAR el buscador y la paginación (modo ticket)
+            activarExportacion('#tablaSeguimiento', tituloDinamico, [8], false);
         });
     </script>
 
