@@ -1,15 +1,36 @@
 <?php
 session_start();
+require_once 'controllers/AuthController.php';
+
+$authController = new AuthController();
+$authController->manejarPeticiones();
+
+if (empty($_SESSION['usuario'])) {
+    $authView = $_GET['acceso'] ?? 'inicio';
+    $csrfToken = $authController->obtenerTokenCsrf();
+    require_once 'views/acceso_view.php';
+    exit;
+}
+
+$usuarioActual = $_SESSION['usuario'];
+$rolPermitido = $usuarioActual['rol'] === 'proveedor' ? 'proveedor' : 'cliente';
+$rolSolicitado = $_GET['rol'] ?? $rolPermitido;
+
+if ($rolSolicitado !== $rolPermitido) {
+    header('Location: index.php?rol=' . $rolPermitido);
+    exit;
+}
+
 require_once 'controllers/OrdenController.php';
 
+$csrfToken = $authController->obtenerTokenCsrf();
 $controlador = new OrdenController();
 $controlador->manejarPeticiones();
 
-$rol = $_GET['rol'] ?? 'inicio';
+$rol = $rolSolicitado;
 
 if ($rol === 'cliente') {
-    // Definimos qué pestaña del cliente se va a mostrar (por defecto mostramos opciones)
-    $vista_cliente = $_GET['vista'] ?? 'opciones'; 
+    $vista_cliente = $_GET['vista'] ?? 'nueva';
     
     $ordenEditar          = $controlador->obtenerOrdenParaEditar();
     $numero_orden_mostrar = $controlador->obtenerNumeroOrden();

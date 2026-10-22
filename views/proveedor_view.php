@@ -36,7 +36,11 @@
 </head>
 <body>
 
-    <a href="index.php" class="volver">⬅ Cambiar de Perfil</a>
+    <form action="index.php" method="POST" style="float: right;">
+        <input type="hidden" name="auth_action" value="logout">
+        <input type="hidden" name="token_csrf" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
+        <button type="submit">Cerrar sesión (<?= htmlspecialchars($usuarioActual['usuario'], ENT_QUOTES, 'UTF-8') ?>)</button>
+    </form>
     <h2>📦 Panel Administrativo - Proveedor (Supplier)</h2>
 
     <?php if (isset($_SESSION['mensaje'])): ?>
@@ -148,6 +152,7 @@
                         <form action="index.php" method="POST" style="margin: 0;">
                             <input type="hidden" name="rol" value="proveedor">
                             <input type="hidden" name="accion" value="cambiar_estado">
+                            <input type="hidden" name="token_csrf" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
                             <input type="hidden" name="id_orden" value="<?= $orden['id'] ?>">
                             
                             <select name="nuevo_estado" class="select-estado" onchange="this.form.submit()"

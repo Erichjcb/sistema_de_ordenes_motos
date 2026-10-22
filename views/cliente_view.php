@@ -43,7 +43,11 @@
 </head>
 <body>
 
-    <a href="index.php" class="volver">⬅ Cambiar de Perfil</a>
+    <form action="index.php" method="POST" style="float: right;">
+        <input type="hidden" name="auth_action" value="logout">
+        <input type="hidden" name="token_csrf" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
+        <button type="submit">Cerrar sesión (<?= htmlspecialchars($usuarioActual['usuario'], ENT_QUOTES, 'UTF-8') ?>)</button>
+    </form>
     <h2>👤 Portal del Cliente (Customer)</h2>
 
     <?php if (isset($_SESSION['mensaje'])): ?>
@@ -67,6 +71,7 @@
                 <input type="hidden" name="rol" value="cliente">
                 <input type="hidden" name="vista" value="nueva">
                 <input type="hidden" name="accion" value="guardar">
+                <input type="hidden" name="token_csrf" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
                 <input type="hidden" name="id" value="<?= $ordenEditar['id'] ?? '' ?>">
 
                 <label>N° de Orden:</label>
@@ -178,8 +183,14 @@
                         <td style="color: #007bff; font-weight: bold; font-size: 16px;"><?= $ordenBuscada['estado_orden'] ?></td>
                         
                         <td>
-                            <a href="index.php?editar=<?= $ordenBuscada['id'] ?>&rol=cliente&vista=nueva" class="btn-editar">Editar</a>
-                            <a href="index.php?eliminar=<?= $ordenBuscada['id'] ?>&rol=cliente&vista=seguimiento" class="btn-eliminar" onclick="return confirm('¿Seguro que deseas eliminar?');">Eliminar</a>
+                            <?php if ($ordenBuscada['estado_orden'] === 'Procesando'): ?>
+                                <a href="index.php?editar=<?= $ordenBuscada['id'] ?>&rol=cliente&vista=nueva" class="btn-editar">Editar</a>
+                                <form action="index.php?rol=cliente&vista=seguimiento" method="POST" style="display: inline;" onsubmit="return confirm('¿Seguro que deseas eliminar?');">
+                                    <input type="hidden" name="token_csrf" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
+                                    <input type="hidden" name="eliminar" value="<?= (int) $ordenBuscada['id'] ?>">
+                                    <button type="submit" class="btn-eliminar">Eliminar</button>
+                                </form>
+                            <?php endif; ?>
                         </td>
                     </tr>
                 </tbody>
