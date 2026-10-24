@@ -41,6 +41,7 @@
         <input type="hidden" name="token_csrf" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8') ?>">
         <button type="submit">Cerrar sesión (<?= htmlspecialchars($usuarioActual['usuario'], ENT_QUOTES, 'UTF-8') ?>)</button>
     </form>
+    <a class="volver" href="index.php?pagina=admin_tienda">Administrar catálogo y nuevos pedidos</a>
     <h2>📦 Panel Administrativo - Proveedor (Supplier)</h2>
 
     <?php if (isset($_SESSION['mensaje'])): ?>
